@@ -56,32 +56,23 @@ roi chuyen nguoc va ap phep affine. Ca S-box thuan va nghich deu viet theo cach 
 
 | Chi so | S-box bang tra | S-box composite |
 |---|---|---|
-| So instance | 44061 | chua chay |
-| Dien tich instance (um2) | 372451 | chua chay |
-| Setup slack xau nhat (ns, 20 ns) | +6.71 | chua chay |
-| Hold slack xau nhat (ns) | +0.12 | chua chay |
+| So instance (gom filler va tap) | 44061 | 24883 (giam 43.5%) |
+| Dien tich instance (um2) | 372451 | 250039 (giam 32.9%) |
+| Setup slack xau nhat (ns, 20 ns) | +6.71 | +3.73 |
+| Hold slack xau nhat (ns) | +0.12 | +0.12 |
+| DRC / LVS / Antenna | 0 loi, Passed | 0 loi, Passed |
 
-- Chua biet bien the nao nho hon sau LibreLane: dem cell cua Yosys generic (khong qua ABC) khong dai dien cho dien tich that, nen khong dua so do vao day.
-- Du doan (suy luan): diem manh la dien tich, diem yeu co the la duong logic sau hon nen setup giam.
+- Ca hai ban chay cung cau hinh LibreLane (CLOCK_PERIOD 20 ns, SDC mac dinh), chi khac file S-box, nen so sanh la cung dieu kien.
+- Ket qua: ban composite nho hon ro ret (dien tich giam khoang 1/3) va van sach DRC, LVS, antenna, khong vi pham setup/hold.
+  Doi lai setup slack xau nhat giam tu +6.71 xuong +3.73 ns, tuc duong logic cham them khoang 3 ns. Voi chu ky 20 ns slack van duong, con du cho.
+- Ly do (suy luan): nghich dao trong GF(2^4) chi can bang 16 muc nen bo bang 256 muc bi thay bang it cong hon, nhung chuoi cong xor/nhan noi tiep dai hon nen cham hon.
+- Chua do cong suat va chua thu chu ky ngan hon, nen chua the noi ban nao tot hon ve toc do toi da.
 
-## Hinh anh
-
-Layout trong KLayout (toan chip):
-
-![layout](results/layout.png)
-
-Bao cao timing trong OpenROAD GUI:
-
-![timing](results/critical_path.png)
-
-- Anh timing la goc nom_typ_1p20V_25C (typical), sap xep theo logic delay giam dan trong cac duong dang liet ke (chua kiem tra toan bo cac duong cua thiet ke).
-- Duong duoc chon la duong tu thanh ghi toi thanh ghi: 20 tang logic, logic delay 5.11 ns, arrival 8.36 ns, slack +11.67 ns o goc nay. Phan con lai cua arrival la tre day noi va clock network.
-- Ten cell do cong cu dat tu dong (dang _35884_), nen khong doi chieu truc tiep ve ten bien trong RTL. Do sau 20 tang va fanout lon phu hop voi vong ma hoa (S-box, MixColumns), nhung day la suy luan, chua xac nhan.
 - So +6.71 ns trong bang ket qua la goc xau nhat, nen khac so slack trong anh vi khac goc.
 - Buffer chong hold (sg13g2_dlygate4sd3_1) do LibreLane tu chen xuat hien tren duong nay, binh thuong.
 
 ## Han che (thang that)
 - Khong chong tan cong kenh ke (side channel), khong co che do CBC/CTR/GCM, chi ECB 1 khoi.
-- Ban goc dung S-box bang tra (case); bien the composite field co kem theo, can chay flow moi biet dien tich that.
+- Hai bien the S-box (bang tra va composite) da chay flow day du; chua so sanh o chu ky khac 20 ns.
 - Chua mo phong gate-level; SDC mac dinh cua LibreLane (input/output delay 20% chu ky), nen slack duong chua chung minh chip chay duoc tren board that.
 - Setup slack du lon cho thay co the thu CLOCK_PERIOD nho hon (vi du 15 ns), nhung chua chay thu. Luu y input/output delay cua SDC mac dinh la 20% chu ky nen cung doi theo chu ky, vi vay slack khong giam tuyen tinh.
