@@ -1,0 +1,6 @@
+runs/
+sim_out/
+*.vvp
+*.vcd
+*Zone.Identifier
+__pycache__/

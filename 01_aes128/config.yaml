@@ -1,0 +1,6 @@
+DESIGN_NAME: aes128_core
+VERILOG_FILES:
+  - dir::aes128_core.v
+  - dir::aes_sbox.v
+CLOCK_PORT: clk
+CLOCK_PERIOD: 20

@@ -1,0 +1,6 @@
+DESIGN_NAME: sha256_core
+VERILOG_FILES:
+  - dir::rtl/sha256_core.v
+  - dir::rtl/sha256_k.v
+CLOCK_PORT: clk
+CLOCK_PERIOD: 22
