@@ -19,5 +19,8 @@ if [ -d 01_aes128 ]; then
   sed 's/module aes_sbox/module aes_sbox_c/; s/module aes_inv_sbox/module aes_inv_sbox_c/' 01_aes128/aes_sbox_comp.v > $tmp/c.v
   check "S-box composite vs bang tra" "$(cd 01_aes128 && iverilog -g2012 -o $tmp/sb sbox_tb.v aes_sbox.v $tmp/c.v 2>&1 && vvp $tmp/sb | grep -E 'PASS|FAIL' | head -1)"
   rm -rf $tmp
+  # che do ECB/CBC/CTR (vector NIST SP 800-38A + OpenSSL)
+  check "AES-128 ECB/CBC/CTR (aes_modes)" "$(sim 01_aes128 aes_modes_tb.v aes_modes.v aes128_core.v aes_sbox.v)"
+  check "AES-128 ECB/CBC/CTR (S-box composite)" "$(sim 01_aes128 aes_modes_tb.v aes_modes.v aes128_core.v aes_sbox_comp.v)"
 fi
 exit $status

@@ -71,8 +71,20 @@ roi chuyen nguoc va ap phep affine. Ca S-box thuan va nghich deu viet theo cach 
 - So +6.71 ns trong bang ket qua la goc xau nhat, nen khac so slack trong anh vi khac goc.
 - Buffer chong hold (sg13g2_dlygate4sd3_1) do LibreLane tu chen xuat hien tren duong nay, binh thuong.
 
+## Che do hoat dong: ECB / CBC / CTR
+
+`aes_modes.v` bao quanh `aes128_core` de xu ly nhieu khoi theo ba che do (mode 0 = ECB, 1 = CBC, 2 = CTR).
+
+- Moi lan xu ly mot khoi 128 bit. `load_iv` nap IV (CBC) hoac bo dem dau (CTR). Thanh ghi chain tu cap nhat sau moi khoi.
+- CBC ma hoa: XOR ban ro voi chain truoc khi vao core. CBC giai ma: XOR dau ra core voi ban ma truoc, roi luu ban ma cua khoi hien tai lam chain moi.
+- CTR: ma hoa bo dem roi XOR voi du lieu; bo dem tang 128 bit; giai ma cung la phep ma hoa nen chan `decrypt` o che do nay.
+- Xung `start` luc dang ban bi bo qua.
+- Kiem chung: `aes_modes_tb.v` doc `modes_vectors.hex` (283 vector) gom dap an NIST SP 800-38A (F.1.1, F.2.1, F.5.1, ma hoa va giai ma) va vector ngau nhien do OpenSSL tinh (nhieu khoa, 1 den 6 khoi, bo dem CTR gan muc tran 64 bit va 128 bit). `gen_modes.py` doi chieu cac hang NIST voi thu vien truoc khi ghi file.
+- Dot bien: 11 loi co y (sai chain CBC, thieu XOR, CTR khong tang hoac chi tang 64 bit, bo qua load_iv, nhan start khi ban...) deu bi bat.
+- Chua chay lop nay qua LibreLane, nen khong co so dien tich hay timing rieng cho lop bao. So lieu o phan Ket qua la cua `aes128_core`.
+
 ## Han che (thang that)
-- Khong chong tan cong kenh ke (side channel), khong co che do CBC/CTR/GCM, chi ECB 1 khoi.
+- Khong chong tan cong kenh ke (side channel), khong co GCM. CBC/CTR chi co o lop bao `aes_modes`, chua qua LibreLane.
 - Hai bien the S-box (bang tra va composite) da chay flow day du; chua so sanh o chu ky khac 20 ns.
 - Chua mo phong gate-level; SDC mac dinh cua LibreLane (input/output delay 20% chu ky), nen slack duong chua chung minh chip chay duoc tren board that.
 - Setup slack du lon cho thay co the thu CLOCK_PERIOD nho hon (vi du 15 ns), nhung chua chay thu. Luu y input/output delay cua SDC mac dinh la 20% chu ky nen cung doi theo chu ky, vi vay slack khong giam tuyen tinh.
