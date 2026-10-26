@@ -1,0 +1,2 @@
+run1 (aes128_core.nl.v): AES128: PASS (304 vector, ma hoa + giai ma)
+comp (aes128_core.nl.v): AES128: PASS (304 vector, ma hoa + giai ma)

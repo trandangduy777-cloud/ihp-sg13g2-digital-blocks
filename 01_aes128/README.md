@@ -66,7 +66,7 @@ roi chuyen nguoc va ap phep affine. Ca S-box thuan va nghich deu viet theo cach 
 - Ket qua: ban composite nho hon ro ret (dien tich giam khoang 1/3) va van sach DRC, LVS, antenna, khong vi pham setup/hold.
   Doi lai setup slack xau nhat giam tu +6.71 xuong +3.73 ns, tuc duong logic cham them khoang 3 ns. Voi chu ky 20 ns slack van duong, con du cho.
 - Ly do (suy luan): nghich dao trong GF(2^4) chi can bang 16 muc nen bo bang 256 muc bi thay bang it cong hon, nhung chuoi cong xor/nhan noi tiep dai hon nen cham hon.
-- Chua do cong suat. Ve toc do: ban bang tra nhanh hon (xem muc quet chu ky ben duoi).
+- Cong suat: ban composite thap hon theo hoat dong that (xem muc Cong suat) nhung chua tinh glitch. Ve toc do: ban bang tra nhanh hon (xem muc quet chu ky ben duoi).
 
 - So +6.71 ns trong bang ket qua la goc xau nhat, nen khac so slack trong anh vi khac goc.
 - Buffer chong hold (sg13g2_dlygate4sd3_1) do LibreLane tu chen xuat hien tren duong nay, binh thuong.
@@ -94,6 +94,44 @@ Khong dat timing nghia la GDS van ra nhung chip khong chay dung o chu ky do; cac
 - O 12 ns, ban composite them 34 cell va do tre giam con 13.93 ns. Chua ro tai sao cong cu chi sua timing o muc nay chu khong o 15 ns (chua tim hieu), nen khong ket luan gi ve kha nang dat 14 ns.
 - Chua thu muc chu ky trung gian (vi du 14 ns), nen Fmax thuc su cua moi ban chi biet nam trong khoang da quet.
 
+## Mo phong gate-level (netlist sau dinh tuyen)
+
+Chay lai dung testbench 304 vector (`aes_tb.v`) len netlist sau dinh tuyen cua LibreLane (`final/nl/aes128_core.nl.v`) cung mo hinh cell IHP, bang `run_gls.sh`.
+Ca hai bien the (S-box bang tra, lan chay `run1`; S-box composite, lan chay `comp`, deu 20 ns) cho ket qua PASS: ma hoa dung, giai ma dung, do tre 11 va 21 chu ky.
+
+- Mo phong khong tre (zero delay): chi kiem tra netlist tuong duong chuc nang voi RTL, khong kiem tra timing.
+- iverilog 12 khong hieu khoi `specify` / `$setuphold` cua thu vien cell, nen script tao ban sao thu vien chi giu phan chuc nang (bo specify, noi `delayed_*` vao chan goc, dat `notifier` = 0) va nap them file UDP cua IHP.
+
+## Cong suat
+
+Hai cach tinh, cho ket qua trai nguoc nhau.
+
+**1. Uoc luong mac dinh cua LibreLane (`power__total` trong metrics.json), khong dua vao hoat dong that:**
+
+| Bien the | 20 ns | 15 ns | 12 ns |
+|---|---|---|---|
+| Bang tra (W) | 0.0571 | 0.0757 | 0.0939 |
+| Composite (W) | 0.5406 | 0.5798 | 0.6514 |
+
+Cong cu tu doan muc hoat dong cua tung day. Ban composite cao gap 9.5 lan va gan nhu khong theo tan so (tang 7% khi tan so tang 33%), khong giong cong suat dong that. Cac so nay khong dung de ket luan.
+
+**2. Tinh theo hoat dong chuyen mach that (`run_power.sh`):** mo phong gate-level ghi VCD cho 20 vector dau cua testbench (ma hoa va giai ma, chu ky 20 ns tuc 50 MHz),
+roi OpenROAD tinh cong suat tren netlist sau dinh tuyen voi SPEF va thu vien cell typical 1.20 V, 25 C. Annotated 75686 pin cho ban bang tra.
+
+| Nhom (mW) | Bang tra | Composite |
+|---|---|---|
+| Sequential | 1.04 | 1.10 |
+| Combinational | 5.40 | 2.76 |
+| Clock | 0.36 | 0.35 |
+| Tong | 6.80 | 4.20 |
+| Trong do noi bo / chuyen mach / ro ri | 2.51 / 4.28 / 0.011 | 2.07 / 2.12 / 0.008 |
+
+- Theo cach nay ban composite thap hon ban bang tra khoang 38% (4.20 so voi 6.80 mW), nguoc han so uoc luong mac dinh. Phan mach to hop giam gan mot nua (5.40 xuong 2.76 mW).
+- Cach 2 dang tin hon cach 1 vi dung hoat dong that, nhung van co gioi han:
+  - Chi 20 vector (khoang 700 chu ky), khoa va du lieu ngau nhien, co ca chu ky ranh; chua do voi tai khac.
+  - Mo phong zero delay nen khong co nhieu xung nhat (glitch). Mach nhieu XOR nhu composite thuong glitch nhieu hon, nen cong suat that cua composite co the cao hon so nay (suy luan, chua do).
+  - Chi mot chu ky (20 ns) va mot goc (typical), chua chay 15 ns va 12 ns bang cach nay.
+
 ## Che do hoat dong: ECB / CBC / CTR
 
 `aes_modes.v` bao quanh `aes128_core` de xu ly nhieu khoi theo ba che do (mode 0 = ECB, 1 = CBC, 2 = CTR).
@@ -109,5 +147,5 @@ Khong dat timing nghia la GDS van ra nhung chip khong chay dung o chu ky do; cac
 ## Han che (thang that)
 - Khong chong tan cong kenh ke (side channel), khong co GCM. CBC/CTR chi co o lop bao `aes_modes`, chua qua LibreLane.
 - Hai bien the S-box (bang tra va composite) da chay flow day du; chua so sanh o chu ky khac 20 ns.
-- Chua mo phong gate-level; SDC mac dinh cua LibreLane (input/output delay 20% chu ky), nen slack duong chua chung minh chip chay duoc tren board that.
+- Mo phong gate-level chi o muc zero delay (chuc nang); SDC mac dinh cua LibreLane (input/output delay 20% chu ky), nen slack duong chua chung minh chip chay duoc tren board that.
 - Da quet 20, 15, 12 ns (xem muc tren). SDC mac dinh dat input/output delay bang 20% chu ky nen cac duong vao ra cung doi theo chu ky; duong toi han o day la duong thanh ghi toi thanh ghi (suy luan tu viec do tre toi han khong doi khi doi chu ky).

@@ -8,7 +8,10 @@ module aes_tb;
   wire busy, done; wire [127:0] dout;
   aes128_core dut(.clk(clk), .rst_n(rst_n), .start(start), .decrypt(decrypt), .key(key), .din(din),
                   .busy(busy), .done(done), .dout(dout));
-  always #5 clk = ~clk;
+`ifndef HALFPERIOD
+`define HALFPERIOD 5
+`endif
+  always #(`HALFPERIOD) clk = ~clk;   // mac dinh chu ky 10 ns; -DHALFPERIOD=10 cho chu ky 20 ns
 
   reg [383:0] mem [0:303];
   integer i, errors = 0, cyc, n = 304;
