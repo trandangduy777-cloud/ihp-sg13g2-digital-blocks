@@ -21,6 +21,7 @@ if [ -d 01_aes128 ]; then
   rm -rf $tmp
   # che do ECB/CBC/CTR (vector NIST SP 800-38A + OpenSSL)
   check "AES-128 ECB/CBC/CTR (aes_modes)" "$(sim 01_aes128 aes_modes_tb.v aes_modes.v aes128_core.v aes_sbox.v)"
+  check "AES-128 APB4 (aes_apb)" "$(sim 01_aes128 aes_apb_tb.v aes_apb.v aes_modes.v aes128_core.v aes_sbox.v)"
   check "AES-128 ECB/CBC/CTR (S-box composite)" "$(sim 01_aes128 aes_modes_tb.v aes_modes.v aes128_core.v aes_sbox_comp.v)"
 fi
 exit $status

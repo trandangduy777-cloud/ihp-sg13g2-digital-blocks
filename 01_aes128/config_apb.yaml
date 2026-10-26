@@ -1,0 +1,8 @@
+DESIGN_NAME: aes_apb
+VERILOG_FILES:
+  - dir::aes_apb.v
+  - dir::aes_modes.v
+  - dir::aes128_core.v
+  - dir::aes_sbox.v
+CLOCK_PORT: PCLK
+CLOCK_PERIOD: 20

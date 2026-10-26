@@ -144,6 +144,27 @@ roi OpenROAD tinh cong suat tren netlist sau dinh tuyen voi SPEF va thu vien cel
 - Dot bien: 11 loi co y (sai chain CBC, thieu XOR, CTR khong tang hoac chi tang 64 bit, bo qua load_iv, nhan start khi ban...) deu bi bat.
 - Chua chay lop nay qua LibreLane, nen khong co so dien tich hay timing rieng cho lop bao. So lieu o phan Ket qua la cua `aes128_core`.
 
+## Ngoai vi APB4
+
+`aes_apb.v` boc `aes_modes` thanh mot ngoai vi APB4 (slave) de CPU hoac SoC dieu khien bang thanh ghi. Co ngat `irq`.
+
+| Dia chi | Thanh ghi | Truy cap | Y nghia |
+|---|---|---|---|
+| 0x00 | CTRL | ghi/doc | bit 0 START (xung), bit 1 DECRYPT, bit 3:2 MODE (0 ECB, 1 CBC, 2 CTR), bit 4 LOAD_IV (xung), bit 5 IRQ_EN |
+| 0x04 | STATUS | doc, ghi 1 de xoa | bit 0 BUSY, bit 1 DONE, bit 2 ERR (START hoac LOAD_IV luc ban) |
+| 0x10 - 0x1C | KEY0..KEY3 | chi ghi | khoa 128 bit, KEY0 la 32 bit cao (byte 0 cua FIPS-197 o bit 31:24) |
+| 0x20 - 0x2C | IV0..IV3 | chi ghi | IV (CBC) hoac bo dem dau (CTR), nap bang LOAD_IV |
+| 0x30 - 0x3C | DIN0..DIN3 | ghi | du lieu vao |
+| 0x40 - 0x4C | DOUT0..DOUT3 | chi doc | ket qua |
+
+Trinh tu dung: ghi KEY, ghi IV roi ghi CTRL voi LOAD_IV (chi khi dau khoi dau tien cua CBC hoac CTR), ghi DIN,
+ghi CTRL voi START, doi STATUS.DONE (hoac irq), doc DOUT, ghi 1 vao STATUS bit 1 de xoa DONE. START va LOAD_IV phai ghi o hai lan truy cap rieng.
+Dia chi ngoai ban do hoac ghi vao DOUT tra ve PSLVERR = 1.
+
+- Kiem chung: `aes_apb_tb.v` lai bus APB4 bang cac task, chay lai 283 vector (NIST SP 800-38A va OpenSSL) qua thanh ghi, kiem tra them ngat, PSLVERR, KEY va IV doc ra 0, START lai khi DONE cu con, START khi dang ban (bat ERR, ket qua khong hong).
+- Dot bien: 15 loi co y (doi thu tu word cua KEY, IV, DOUT, doi bit MODE va DECRYPT, DONE khong xoa, irq khong chan IRQ_EN, bo PSLVERR, nhan START khi ban...). 14 loi bi bat. Loi con lai (bo `start_q` khoi tin hieu BUSY) khong quan sat duoc qua APB vi hai truy cap lien tiep cach nhau it nhat hai chu ky, khi do core da ban (tuong duong, khong phai lo hong).
+- Gioi han: chua chay qua LibreLane (co `config_apb.yaml` san, chua chay), chua gan vao SoC that, bo qua PSTRB (ghi het 32 bit), khong chan ghi KEY va DIN khi dang ban.
+
 ## Han che (thang that)
 - Khong chong tan cong kenh ke (side channel), khong co GCM. CBC/CTR chi co o lop bao `aes_modes`, chua qua LibreLane.
 - Hai bien the S-box (bang tra va composite) da chay flow day du; chua so sanh o chu ky khac 20 ns.
