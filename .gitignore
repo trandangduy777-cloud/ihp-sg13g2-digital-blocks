@@ -2,4 +2,4 @@ runs/
 sim_out
 simm
 *.vcd
-*.Zone.Identifier
+*Zone.Identifier
