@@ -1,54 +1,30 @@
-# \# IHP SG13G2 digital blocks
+# IHP SG13G2 digital blocks
 
-# 
+[![sim](https://github.com/trandangduy777-cloud/ihp-sg13g2-digital-blocks/actions/workflows/sim.yml/badge.svg)](https://github.com/trandangduy777-cloud/ihp-sg13g2-digital-blocks/actions/workflows/sim.yml)
 
-# !\[sim](https://github.com/trandangduy777-cloud/ihp-sg13g2-digital-blocks/actions/workflows/sim.yml/badge.svg)
+Digital designs written in Verilog, checked by self-checking testbenches (PASS/FAIL),
+and taken through the open-source flow LibreLane to GDS on the IHP SG13G2 PDK.
 
-# 
+## Projects
 
-# Digital designs written in Verilog, checked by self-checking testbenches (PASS/FAIL),
+| Project | Status |
+|---|---|
+| [AES-128 encrypt/decrypt](01_aes128) | Done: 304-vector testbench (FIPS-197 + random), mutation test, ECB/CBC/CTR modes, APB4 slave, GDS with DRC, LVS and antenna passed, gate-level simulation, power analysis |
+| [SHA-256](04_sha256) | RTL and self-checking testbench done, flow results not filled in yet |
+| RV32I / RV32IM 5-stage pipeline | Done, in its own repository: [rv32i-single-cycle](https://github.com/trandangduy777-cloud/rv32i-single-cycle) |
+| Mini SoC | Planned |
+| FFT + FIR | Planned |
 
-# and taken through the open-source flow LibreLane to GDS on the IHP SG13G2 PDK.
+## Run the simulations
 
-# 
+```
+bash run_sim.sh
+```
 
-# \## Projects
+Needs Icarus Verilog. Runs the AES-128 testbenches (core with both S-box versions, ECB/CBC/CTR, APB4);
+each prints one line, PASS or FAIL. SHA-256 has its own `04_sha256/run_sim.sh`.
 
-# 
+## Limits
 
-# | Project | Status |
-
-# |---|---|
-
-# | \[AES-128 encrypt/decrypt](01\_aes128) | done, GDS with DRC, LVS and antenna passed |
-
-# | \[SHA-256](04\_sha256) | folder added |
-
-# | RV32I 5-stage pipeline | planned |
-
-# | Mini SoC | planned |
-
-# | FFT + FIR | planned |
-
-# 
-
-# \## Run the simulations
-
-# 
-
-# &#x20;   bash run\_sim.sh
-
-# 
-
-# Needs Icarus Verilog. Each testbench prints one line, PASS or FAIL.
-
-# 
-
-# \## Limits
-
-# 
-
-# \- Gate-level simulation is not done yet.
-
-# \- Timing uses the default SDC of LibreLane.
-
+- Gate-level simulation is done for AES-128 only, and it is functional (no SDF timing).
+- Timing uses the default SDC of LibreLane.
