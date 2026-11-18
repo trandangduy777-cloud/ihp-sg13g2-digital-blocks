@@ -1,13 +1,25 @@
-  name: sim
-  on:
-    push:
-    pull_request:
-  jobs:
-    simulate:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - name: Install Icarus Verilog
-          run: sudo apt-get update && sudo apt-get install -y iverilog
-        - name: Run self-checking testbenches
-          run: bash unic-cass-advanced/run_sim.sh
+# Chay cac testbench tu kiem tra (PASS/FAIL) moi lan push.
+name: sim
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  simulate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog
+
+      - name: AES-128 testbenches (core, ECB/CBC/CTR, APB4)
+        run: bash run_sim.sh
+
+      - name: SHA-256 testbench
+        run: bash 04_sha256/run_sim.sh
